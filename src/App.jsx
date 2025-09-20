@@ -65,26 +65,54 @@ export default function App() {
     setDecorations(ids);
   }
 
-  async function runCode() {
-    setRunning(true);
-    setOutput('');
-    setStderr('');
-    clearDecorations();
+  // async function runCode() {
+  //   setRunning(true);
+  //   setOutput('');
+  //   setStderr('');
+  //   clearDecorations();
 
-    try {
-      const resp = await axios.post('http://localhost:4000/run', { language, code, stdin }, { timeout: 30000 });
-      const data = resp.data;
-      setOutput(data.stdout || '');
-      setStderr(data.stderr || '');
-      if (data.errorLines && data.errorLines.length) {
-        applyErrorDecorations(data.errorLines);
-      }
-    } catch (err) {
-      setStderr(err?.response?.data?.error || err.message);
-    } finally {
-      setRunning(false);
+  //   try {
+  //     const resp = await axios.post('http://localhost:4000/run', { language, code, stdin }, { timeout: 30000 });
+  //     const data = resp.data;
+  //     setOutput(data.stdout || '');
+  //     setStderr(data.stderr || '');
+  //     if (data.errorLines && data.errorLines.length) {
+  //       applyErrorDecorations(data.errorLines);
+  //     }
+  //   } catch (err) {
+  //     setStderr(err?.response?.data?.error || err.message);
+  //   } finally {
+  //     setRunning(false);
+  //   }
+  // }
+  async function runCode() {
+  setRunning(true);
+  setOutput('');
+  setStderr('');
+  clearDecorations();
+
+  const API = process.env.REACT_APP_API_URL;
+
+  try {
+    const resp = await axios.post(
+      `${API}/run`,
+      { language, code, stdin },
+      { timeout: 30000 }
+    );
+
+    const data = resp.data;
+    setOutput(data.stdout || '');
+    setStderr(data.stderr || '');
+    if (data.errorLines && data.errorLines.length) {
+      applyErrorDecorations(data.errorLines);
     }
+  } catch (err) {
+    setStderr(err?.response?.data?.error || err.message);
+  } finally {
+    setRunning(false);
   }
+}
+
 
   return (
     <div style={{display:'flex', height:'100vh', gap: '8px', padding: '8px', boxSizing: 'border-box', flexDirection: 'column'}}>
